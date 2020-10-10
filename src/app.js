@@ -1,10 +1,16 @@
+const artistControllers = require('./controllers/artists');
 const express = require('express');
 const app = express();
 app.use(express.json());
+require('dotenv').config()
 
-app.get('/', (req, res) => {
-    // console.log(101);
-res.send("Hello World!");
-  });
+app.post('/artists', artistControllers.create);
+// app.get('/artists', artistControllers.list);
+
+// app.get('/', (req, res) => {
+//     // console.log(101);
+// res.send("Hello World!");
+//   });
+  
 
 module.exports = app;
