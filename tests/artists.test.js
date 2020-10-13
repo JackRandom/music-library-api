@@ -47,44 +47,45 @@ describe('/artists', () => {
         done();
       });
     });
-
-    describe('GET /artists', () => {
-      it('gets all artist records', (done) => {
-        request(app)
-          .get('/artists')
-          .then((res) => {
-            expect(res.status).to.equal(200);
-            expect(res.body.length).to.equal(3);
-            res.body.forEach((artist) => {
-              const expected = artists.find((a) => a.id === artist.id);
-              expect(artist.name).to.equal(expected.name);
-              expect(artist.genre).to.equal(expected.genre);
+  
+      describe('GET /artists', () => {
+        it('gets all artist records', (done) => {
+          request(app)
+            .get('/artists')
+            .then((res) => {
+              expect(res.status).to.equal(200);
+              expect(res.body.length).to.equal(3);
+              res.body.forEach((artist) => {
+                const expected = artists.find((a) => a.id === artist.id);
+                expect(artist.name).to.equal(expected.name);
+                expect(artist.genre).to.equal(expected.genre);
+              });
+              done();
             });
-            done();
+        });
+      });
+      describe('GET /artists/:artistId', () => {
+        it('gets artist record by id', (done) => {
+          const artist = artists[0];
+          request(app)
+            .get(`/artists/${artist.id}`)
+            .then((res) => {
+              expect(res.status).to.equal(200);
+              expect(res.body.name).to.equal(artist.name);
+              expect(res.body.genre).to.equal(artist.genre);
+              done();
+            });
+        });
+        it('returns a 404 if the artist does not exist', (done) => {
+          request(app)
+            .get('/artists/12345')
+            .then((res) => {
+              expect(res.status).to.equal(404);
+              expect(res.body.error).to.equal('the artist could not be found.');
+              done();
+            });
           });
-      });
+        });
+
     });
-});
-describe('GET /artists/:artistId', () => {
-  it('gets artist record by id', (done) => {
-    const artist = artists[0];
-    request(app)
-      .get(`/artists/${artist.id}`)
-      .then((res) => {
-        expect(res.status).to.equal(200);
-        expect(res.body.name).to.equal(artist.name);
-        expect(res.body.genre).to.equal(artist.genre);
-        done();
-      });
   });
-  // it('returns a 404 if the artist does not exist', (done) => {
-  //   request(app)
-  //     .get('/artists/12345')
-  //     .then((res) => {
-  //       expect(res.status).to.equal(404);
-  //       expect(res.body.error).to.equal('the artist could not be found.');
-  //       done();
-  //     });
-  // });
-});
-});

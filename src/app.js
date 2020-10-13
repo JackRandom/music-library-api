@@ -6,13 +6,13 @@ require('dotenv').config()
 
 app.post('/artists', artistControllers.create);
 app.get('/artists', artistControllers.list);
-// app.get('/artists/:artistId', artistControllers.artistId);
 app.get('/artists/:artistId', artistControllers.getArtistById);
 
-// app.get('/', (req, res) => {
-//     // console.log(101);
-// res.send("Hello World!");
-//   });
+
+app.get('/', (req, res) => {
+    // console.log(101);
+res.send("Hello World!");
+  });
   
 
 module.exports = app;
