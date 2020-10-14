@@ -20,21 +20,21 @@ describe('/artists', () => {
     }
   });
 
-  describe('POST /artists', async () => {
-    it('creates a new artist in the database', async () => {
-      const response = await request(app).post('/artists').send({
-        name: 'Tame Impala',
-        genre: 'Rock',
-      });
+  // describe('POST /artists', async () => {
+  //   it('creates a new artist in the database', async () => {
+  //     const response = await request(app).post('/artists').send({
+  //       name: 'Tame Impala',
+  //       genre: 'Rock',
+  //     });
 
-      await expect(response.status).to.equal(201);
-      expect(response.body.name).to.equal('Tame Impala');
+  //     await expect(response.status).to.equal(201);
+  //     expect(response.body.name).to.equal('Tame Impala');
 
-      const insertedArtistRecords = await Artist.findByPk(response.body.id, { raw: true });
-      expect(insertedArtistRecords.name).to.equal('Tame Impala');
-      expect(insertedArtistRecords.genre).to.equal('Rock');
-    });
-  })
+  //     const insertedArtistRecords = await Artist.findByPk(response.body.id, { raw: true });
+  //     expect(insertedArtistRecords.name).to.equal('Tame Impala');
+  //     expect(insertedArtistRecords.genre).to.equal('Rock');
+  //   });
+  // })
   describe('with artists in the database', () => {
     let artists;
     beforeEach((done) => {
@@ -47,7 +47,21 @@ describe('/artists', () => {
         done();
       });
     });
+    describe('POST /artists', async () => {
+      it('creates a new artist in the database', async () => {
+        const response = await request(app).post('/artists').send({
+          name: 'Tame Impala',
+          genre: 'Rock',
+        });
   
+        await expect(response.status).to.equal(201);
+        expect(response.body.name).to.equal('Tame Impala');
+  
+        const insertedArtistRecords = await Artist.findByPk(response.body.id, { raw: true });
+        expect(insertedArtistRecords.name).to.equal('Tame Impala');
+        expect(insertedArtistRecords.genre).to.equal('Rock');
+      });
+    })
       describe('GET /artists', () => {
         it('gets all artist records', (done) => {
           request(app)
@@ -64,6 +78,7 @@ describe('/artists', () => {
             });
         });
       });
+      // artistId is the main identifier in the function for the test req params
       describe('GET /artists/:artistId', () => {
         it('gets artist record by id', (done) => {
           const artist = artists[0];
@@ -86,6 +101,70 @@ describe('/artists', () => {
             });
           });
         });
-
+        describe('PATCH /artists/:id', () => {
+          it('updates artist genre by id', (done) => {
+            const artist = artists[0];
+            request(app)
+              .patch(`/artists/${artist.id}`)
+              .send({ genre: 'Psychedelic Rock' })
+              .then((res) => {
+                expect(res.status).to.equal(200);
+                Artist.findByPk(artist.id, { raw: true }).then((updatedArtist) => {
+                  expect(updatedArtist.genre).to.equal('Psychedelic Rock');
+                  done();
+                });
+              });
+          });
+          it('updates artist name by id', (done) => {
+            const artist = artists[0];
+            request(app)
+              .patch(`/artists/${artist.id}`)
+              .send({ name: 'REM' })
+              .then((res) => {
+                expect(res.status).to.equal(200);
+                Artist.findByPk(artist.id, { raw: true }).then((updatedArtist) => {
+                  expect(updatedArtist.name).to.equal('REM');
+                  done();
+                });
+              });
+          });  
+          it('updates artist genre & name by id', (done) => {
+            const artist = artists[0];
+            request(app)
+              .patch(`/artists/${artist.id}`)
+              .send({ genre: 'Alt Rock', name: 'REM' })
+              .then((res) => {
+                expect(res.status).to.equal(200);
+                Artist.findByPk(artist.id, { raw: true }).then((updatedArtist) => {
+                  expect(updatedArtist.name).to.equal('REM');
+                  done();
+                });
+              });
+          });     
+    });
+    describe('DELETE /artists/:artistId', () => {
+      it('deletes artist record by id', (done) => {
+        const artist = artists[0];
+        request(app)
+          .delete(`/artists/${artist.id}`)
+          .then((res) => {
+            expect(res.status).to.equal(204);
+            Artist.findByPk(artist.id, { raw: true }).then((updatedArtist) => {
+              expect(updatedArtist).to.equal(null);
+              done();
+            });
+          });
+      });
+      it('returns a 404 if the artist does not exist', (done) => {
+        request(app)
+          .get('/artists/12345')
+          .then((res) => {
+            expect(res.status).to.equal(404);
+            expect(res.body.error).to.equal('the artist could not be found.');
+            done();
+          });
+        });
+});
     });
   });
+  
