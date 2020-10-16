@@ -1,0 +1,1 @@
+This repo is building a music library API that has artists, ablums and songs and has various tests and functions to find, add and remove entries in the database.
