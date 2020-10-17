@@ -11,8 +11,11 @@ app.get('/artists/:artistId', artistControllers.getArtistById);
 // the :artistId part of the route is the important part of the path for this route and its controller and model
 app.patch('/artists/:id', artistControllers.patchArtistById);
 app.delete('/artists/:id', artistControllers.deleteArtistById);
-app.post('/artists/:artistId/albums', albumControllers.createAlbum);
-// app.post('/artists/:artistId/albums', albumControllers.getAlbumById);
+app.post('/artists/:id/albums', albumControllers.createAlbum);
+// app.get('/albums/:id', albumControllers.getAlbumById);
+app.get('/albums', albumControllers.albumList);
+// app.patch('/artists/:id/albums', albumControllers.patchAlbumById);
+// app.delete('/artists/:id/albums', albumControllers.deleteAlbumById);
 
 app.get('/', (req, res) => {
     // console.log(101);
