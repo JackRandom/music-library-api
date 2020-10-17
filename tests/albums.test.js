@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 const { expect } = require('chai');
 const request = require('supertest');
 const app = require('../src/app');
@@ -48,22 +49,22 @@ describe('/albums', () => {
         });
     });
 
-    xit('returns a 404 and does not create an album if the artist does not exist', (done) => {
-        request(app)
-          .post('/artists/1234/albums')
-          .send({
-            name: 'InnerSpeaker',
-            year: 2010,
-          })
-          .then((res) => {
-            expect(res.status).to.equal(404);
-            expect(res.body.error).to.equal('The artist could not be found.');
-  
-            Album.findAll().then((albums) => {
-              expect(albums.length).to.equal(0);
-              done();
-            });
+    it('returns a 404 and does not create an album if the artist does not exist', (done) => {
+      request(app)
+        .post('/artists/1234/albums')
+        .send({
+          name: 'InnerSpeaker',
+          year: 2010,
+        })
+        .then((res) => {
+          expect(res.status).to.equal(404);
+          expect(res.body.error).to.equal('The artist could not be found.');
+
+          Album.findAll().then((albums) => {
+            expect(albums.length).to.equal(0);
+            done();
           });
-      });
+        });
     });
   });
+});
