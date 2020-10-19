@@ -21,7 +21,7 @@ exports.getArtistById = (req, res) => {
     }
   })
 };
-exports.patchArtistById  = (req, res, next) => {
+exports.patchArtistById  = (req, res) => {
   const { id } = req.params;
   Artist.update(
     {genre: req.body.genre,

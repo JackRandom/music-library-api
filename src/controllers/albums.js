@@ -31,3 +31,32 @@ exports.getAlbumById = (req, res) => {
     }
   })
 };
+
+exports.patchAlbumById  = (req, res) => {
+  const { id } = req.params;
+  Album.update(
+    {year: req.body.year,
+      name: req.body.name},
+    {where: {id}}
+  ).then(rowsUpdated => {
+    if (!rowsUpdated) {
+      res.status(404).json({ error: 'the album could not be found.' });
+    } else {
+      res.status(200).json(rowsUpdated);
+    }
+  })
+};
+
+exports.deleteAlbumById  = (req, res) => {
+  const { id } = req.params;
+  Album.destroy({
+    where: {id: id}
+  }).then(rowsUpdated => {
+    if (!rowsUpdated) {
+      res.status(404).json({ error: 'the album could not be found.' });
+    } else {
+      res.status(204).json(rowsUpdated);
+    }
+  })
+};
+

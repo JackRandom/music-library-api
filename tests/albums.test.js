@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 const { expect } = require('chai');
 const request = require('supertest');
 const app = require('../src/app');
@@ -28,19 +27,6 @@ describe('/albums', () => {
       console.log(err);
     }
   });
-
-  // describe('with albums in the database', () => {
-  //   let albums;
-  //   beforeEach((done) => {
-  //     Promise.all([
-  //       Album.create({ name: '2001 album', year: 2001 }),
-  //       Album.create({ name: '2002 album', year: 2002 }),
-  //       Album.create({ name: '2003 album', year: 2003 }),
-  //     ]).then((documents) => {
-  //       albums = documents;
-  //       done();
-  //     });
-  //   });
 
   describe('POST /artists/:artistId/albums', () => {
     it('creates a new album for a given artist', (done) => {
@@ -73,7 +59,7 @@ describe('/albums', () => {
           expect(res.status).to.equal(404);
           expect(res.body.error).to.equal('The artist could not be found.');
 
-          Album.findAll().then((albums) => {
+          Album.findAll({where:{name: 'InnerSpeaker'}}).then((albums) => {
             expect(albums.length).to.equal(0);
             done();
           });
@@ -81,13 +67,26 @@ describe('/albums', () => {
     });
   });
 
+  describe('with albums in the database', () => {
+    let albums;
+    beforeEach((done) => {
+      Promise.all([
+        Album.create({ name: 'Murmur', year: 1983 }),
+        Album.create({ name: 'Reckoning', year: 1984 }),
+        Album.create({ name: 'Document', year: 1987 }),
+      ]).then((documents) => {
+        albums = documents;
+        done();
+      });
+    });
+
   describe('GET /albums', () => {
     it('gets all album records', (done) => {
       request(app)
         .get('/albums')
         .then((res) => {
           expect(res.status).to.equal(200);
-          expect(res.body.length).to.equal(0);
+          expect(res.body.length).to.equal(3);
           res.body.forEach((album) => {
             const expected = albums.find((a) => a.id === album.id);
             expect(album.name).to.equal(expected.name);
@@ -95,31 +94,73 @@ describe('/albums', () => {
           });
           done();
         });
+      });
     });
-  });
 
-  // artistId is the main identifier in the function for the test req params
-  // describe('GET /albums/:albumId', () => {
-  //   it('gets album record by id', (done) => {
-  //     const album = albums[0];
-  //       request(app)
-  //         .get(`/albums/${album.id}`)
-  //           .then((res) => {
-  //            expect(res.status).to.equal(200);
-  //            expect(res.body.name).to.equal(album.name);
-  //            expect(res.body.year).to.equal(album.year);
-  //            done();
-  //             });
-  //           });
-  //           it('returns a 404 if the album does not exist', (done) => {
-  //             request(app)
-  //               .get('/albums/12345')
-  //               .then((res) => {
-  //                 expect(res.status).to.equal(404);
-  //                 expect(res.body.error).to.equal('the album could not be found.');
-  //                 done();
-  //               });
-  //             });
-  //           });
+    describe('PATCH /albums/:id', () => {
+      it('updates album name by id', (done) => {
+        const album = albums[0];
+        request(app)
+          .patch(`/albums/${album.id}`)
+          .send({ name: 'Green' })
+          .then((res) => {
+            expect(res.status).to.equal(200);
+            Album.findByPk(album.id, { raw: true }).then((updatedAlbum) => {
+              expect(updatedAlbum.name).to.equal('Green');
+              done();
+            });
+          });
+      });
+      it('updates artist year by id', (done) => {
+        const album = albums[0];
+        request(app)
+          .patch(`/albums/${album.id}`)
+          .send({ name: 'Green' })
+          .then((res) => {
+            expect(res.status).to.equal(200);
+            Album.findByPk(album.id, { raw: true }).then((updatedAlbum) => {
+              expect(updatedAlbum.name).to.equal('Green');
+              done();
+            });
+          });
+      });  
+      it('updates artist genre & name by id', (done) => {
+        const album = albums[0];
+        request(app)
+          .patch(`/albums/${album.id}`)
+          .send({ year: 1988, name: 'Green' })
+          .then((res) => {
+            expect(res.status).to.equal(200);
+            Album.findByPk(album.id, { raw: true }).then((updatedAlbum) => {
+              expect(updatedAlbum.name).to.equal('Green');
+              done();
+            });
+          });
+      });     
+});
+
+describe('DELETE /albums/:albumId', () => {
+  it('deletes album record by id', (done) => {
+    const album = albums[0];
+    request(app)
+      .delete(`/albums/${album.id}`)
+      .then((res) => {
+        expect(res.status).to.equal(204);
+        Album.findByPk(album.id, { raw: true }).then((updatedAlbum) => {
+          expect(updatedAlbum).to.equal(null);
+          done();
+        });
+      });
   });
-// });
+  it('returns a 404 if the artist does not exist', (done) => {
+    request(app)
+      .get('/albums/12345')
+      .then((res) => {
+        expect(res.status).to.equal(404);
+        expect(res.body.error).to.equal('the album could not be found.');
+        done();
+      });
+    });
+});
+  });
+});
